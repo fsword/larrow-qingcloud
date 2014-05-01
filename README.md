@@ -17,6 +17,9 @@ Or install it yourself as:
     $ gem install larrow-qingcloud
 
 ## Sample
+before use Qingcloud API, you should establish connection first:
+
+    Qingcloud.establish_connection <your_access_id>, <your_secret_key>
 
 * list images
 
