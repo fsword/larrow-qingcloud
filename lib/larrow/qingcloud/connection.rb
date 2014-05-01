@@ -1,0 +1,66 @@
+require 'faraday'
+require 'cgi'
+require 'openssl'
+require 'base64'
+require 'json'
+
+module Larrow
+  module Qingcloud
+    class Connection
+      URL_TEMPLATE='https://api.qingcloud.com/iaas/?%s&signature=%s'
+      attr_accessor :access_key, :secret_key
+
+      def initialize access_key=nil, secret_key=nil
+        if access_key.nil? || secret_key.nil?
+          access_key, secret_key = load_by_default
+        end
+        self.access_key = access_key
+        self.secret_key = secret_key
+      end
+
+      def service method, action, params={}
+        # Time.new.iso8601 cannot be recognized
+        time_stamp = "%sT%sZ" % Time.new.utc.to_s.split(/ /)
+        params.update(
+          action: action,
+          time_stamp: time_stamp,
+          access_key_id: access_key,
+          version: 1,
+          signature_method: 'HmacSHA256',
+          signature_version: 1
+        )
+
+        request_str = params.keys.sort.map do |k|
+          "#{CGI::escape k.to_s}=#{CGI::escape params[k].to_s}"
+        end.join('&')
+
+        signed_text = "%s\n/iaas/\n%s" % [method.upcase, request_str]
+
+        signature = Base64.encode64(OpenSSL::HMAC.digest(
+          OpenSSL::Digest.new('sha256'), secret_key, signed_text
+        )).strip
+
+        url = URL_TEMPLATE % [request_str, CGI.escape(signature)]
+        resp = Faraday.send(method.to_sym, url)
+
+        obj = JSON.parse resp.body
+       
+        if obj['ret_code']!=0
+          raise ServiceError.new(obj['ret_code'], obj['message'])
+        end
+   
+        obj
+      end
+
+      def load_by_default
+        key_path='access_key.csv'
+        args = read_content_as_hash key_path
+        [args['qy_access_key_id'], args['qy_secret_access_key']]
+      end
+
+      def read_content_as_hash file
+        Hash[*File.read(file).gsub(/[ ']/,'').split(/[\n:]/)]
+      end
+    end
+  end
+end
