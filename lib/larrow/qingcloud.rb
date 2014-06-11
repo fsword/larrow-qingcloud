@@ -1,8 +1,3 @@
-require "larrow/qingcloud/version"
-require 'larrow/qingcloud/service_error'
-require 'larrow/qingcloud/connection'
-require 'larrow/qingcloud/base'
-
 require 'active_support/deprecation'
 require 'active_support/core_ext/string'
 
@@ -19,3 +14,10 @@ module Larrow
     autoload :Eip,      'larrow/qingcloud/eip'
   end
 end
+
+require "larrow/qingcloud/version"
+require 'larrow/qingcloud/logger'
+require 'larrow/qingcloud/service_error'
+require 'larrow/qingcloud/connection'
+require 'larrow/qingcloud/base'
+
