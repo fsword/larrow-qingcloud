@@ -2,16 +2,25 @@ require 'logger'
 module Larrow
   module Qingcloud
     module Logger
-      def logger
-        @logger ||= ::Logger.new "#{$LOG_FOLDER}qingcloud.log"
+      def self.included base
+        base.extend ClassMethods
       end
 
-      def info msg
-        logger.info msg
+      module ClassMethods
+        def logger
+          @logger ||= ::Logger.new "#{$LOG_FOLDER}qingcloud.log"
+        end
+        def info msg
+          logger.info msg
+        end
+        def err msg
+          logger.error msg
+        end
       end
-      def err msg
-        logger.error msg
-      end
+
+      def info msg; self.class.info msg end
+      def err msg;  self.class.err msg  end
+
     end
   end
 end
