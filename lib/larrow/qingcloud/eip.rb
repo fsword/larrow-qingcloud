@@ -21,9 +21,12 @@ module Larrow
       def wait_for status
         3.times do
           sleep 3
-          if show['status'] == status
+          current_status = show['status']
+          if current_status == status.to_s
             info "EIP status changed: #{id} - #{status}"
             return
+          else
+            debug "EIP wait for status: #{id} - #{current_status}"
           end
         end
       end
