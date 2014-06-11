@@ -8,12 +8,6 @@ module Larrow
       Qingcloud.establish_connection access,secret
     end
 
-    it 'use_eip' do
-      objs = Qingcloud::Eip.create count:1
-      objs.count.should == 1
-      objs.first.destroy['ret_code'].should == 0
-    end
-
     it 'use images' do
       # list images
       images = Qingcloud::Image.list
