@@ -10,6 +10,9 @@ module Larrow
         def logger
           @logger ||= ::Logger.new "#{$LOG_FOLDER}qingcloud.log"
         end
+        def debug msg
+          logger.debug msg
+        end
         def info msg
           logger.info msg
         end
@@ -18,6 +21,7 @@ module Larrow
         end
       end
 
+      def debug msg; self.class.debug msg end
       def info msg; self.class.info msg end
       def err msg;  self.class.err msg  end
 
