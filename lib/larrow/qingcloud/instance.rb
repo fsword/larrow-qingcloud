@@ -71,12 +71,14 @@ module Larrow
             obj.id      = data['instance_id']
             obj.status  = data['status']
             obj.zone_id = zone_id
-            info "create instance: #{obj.id}"
           end
           if instances.map(&:status).uniq == [ 'running' ]
+            info "create instance: #{instance_ids}"
             instances.map(&:join_vxnet)
             instances.map(&:attach_keypair)
             return instances
+          else
+            debug "instance wait for running: #{instance_ids}"
           end
         end
         []
