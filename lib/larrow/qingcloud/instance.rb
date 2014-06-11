@@ -1,7 +1,6 @@
 module Larrow
   module Qingcloud
     class Instance < Base
-      attr_accessor :zone_id, :id, :status
       destroy_action 'TerminateInstances'
 
       def self.create image_id,instance_type,zone_id:'pek1',count:1,passwd:'1qaz@WSX'
@@ -14,7 +13,8 @@ module Larrow
           login_mode: 'passwd',
           login_passwd: passwd
         }
-        wait_for_running zone_id, result['instances']
+        info "instance added: #{zone_id} #{result['instances']}"
+        result['instances'].map{|id| new id, zone_id}
       end
 
       def attach_keypair keypair_id='kp-t82jrcvw'
@@ -23,11 +23,13 @@ module Larrow
           :'instances.1' => id,
           :'keypairs.1'  => keypair_id
         }
-        3.times do
-          sleep 2
-          if show(verbose:1)['keypair_ids'].count>0
-            info "instance attach keypair: #{id}"
-            return
+        lambda do
+          3.times do
+            sleep 5
+            if show(verbose:1)['keypair_ids'].count>0
+              info "instance attach keypair: #{id}"
+              return
+            end
           end
         end
       end
@@ -36,11 +38,13 @@ module Larrow
         params = param_by [id], {zone: zone_id,vxnet:vxnet_id}
         conn.service 'get','JoinVxnet',params
         # wait for vxnet assgined
-        3.times do
-          sleep 5
-          if show['vxnets'].size > 0
-            info "instance joined vxnet: #{id}"
-            return
+        lambda do
+          3.times do
+            sleep 8 # join net is too slow to wait a long time
+            if show['vxnets'].size > 0
+              info "instance joined vxnet: #{id}"
+              return
+            end
           end
         end
       end
@@ -64,24 +68,10 @@ module Larrow
         eip.wait_for :available
       end
 
-      def self.wait_for_running zone_id, instance_ids
-        3.times do
-          sleep 5
-          instances = describe instance_ids, {zone:zone_id} do |obj,data|
-            obj.id      = data['instance_id']
-            obj.status  = data['status']
-            obj.zone_id = zone_id
-          end
-          if instances.map(&:status).uniq == [ 'running' ]
-            info "create instance: #{instance_ids}"
-            instances.map(&:join_vxnet)
-            instances.map(&:attach_keypair)
-            return instances
-          else
-            debug "instance wait for running: #{instance_ids}"
-          end
+      def wait_for status
+        super do |data|
+          [attach_keypair, join_vxnet].map &:call
         end
-        []
       end
     end
   end
