@@ -4,10 +4,7 @@ module Larrow
       attr_accessor :zone_id, :id, :status
       destroy_action 'TerminateInstances'
 
-      def self.create image_id,instance_type,zone_id,count:1,passwd:'1qaz@WSX'
-        image_id ||= 'trustysrvx64'
-        instance_type ||= 'small_a'
-        zone_id ||= 'pek1'
+      def self.create image_id,instance_type,zone_id:'pek1',count:1,passwd:'1qaz@WSX'
         $stderr.puts "The default password is weak, you should change it"
         result = conn.service 'get','RunInstances',{
           image_id: image_id, 

@@ -10,10 +10,7 @@ module Larrow
       URL_TEMPLATE='https://api.qingcloud.com/iaas/?%s&signature=%s'
       attr_accessor :access_key, :secret_key
 
-      def initialize access_key=nil, secret_key=nil
-        if access_key.nil? || secret_key.nil?
-          access_key, secret_key = load_by_default
-        end
+      def initialize access_key, secret_key
         self.access_key = access_key
         self.secret_key = secret_key
       end
@@ -50,16 +47,6 @@ module Larrow
         end
    
         obj
-      end
-
-      def load_by_default
-        key_path='access_key.csv'
-        args = read_content_as_hash key_path
-        [args['qy_access_key_id'], args['qy_secret_access_key']]
-      end
-
-      def read_content_as_hash file
-        Hash[*File.read(file).gsub(/[ ']/,'').split(/[\n:]/)]
       end
     end
   end
