@@ -62,10 +62,11 @@ module Larrow
               info "destroy #{self.class.name}: #{result}"
               return result
             rescue ServiceError => e
-              err( "%s: %s" % [e.code, e.message])
+              debug "try to destroy: %s" % [e.message]
               sleep 15
             end
           end
+          raise "cannot destroy fail #{self.class}: #{id}"
         end
       end
 
