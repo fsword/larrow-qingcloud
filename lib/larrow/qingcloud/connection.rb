@@ -40,13 +40,11 @@ module Larrow
         url = URL_TEMPLATE % [request_str, CGI.escape(signature)]
         resp = Faraday.send(method.to_sym, url)
 
-        obj = JSON.parse resp.body
-       
-        if obj['ret_code']!=0
-          raise ServiceError.new(obj['ret_code'], obj['message'])
+        JSON.parse(resp.body).tap do |obj|
+          if obj['ret_code']!=0
+            raise ServiceError.new(obj['ret_code'], obj['message'])
+          end
         end
-   
-        obj
       end
     end
   end

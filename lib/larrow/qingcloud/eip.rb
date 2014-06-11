@@ -14,13 +14,17 @@ module Larrow
           obj.id      = data['eip_id'  ]
           obj.address = data['eip_addr']
           obj.zone_id = zone_id
+          info "EIP created: #{obj.id} - #{obj.address}"
         end
       end
 
       def wait_for status
         3.times do
           sleep 3
-          return if show['status'] == status
+          if show['status'] == status
+            info "EIP status changed: #{id} - #{status}"
+            return
+          end
         end
       end
     end

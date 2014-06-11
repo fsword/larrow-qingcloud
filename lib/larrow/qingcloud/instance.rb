@@ -25,7 +25,10 @@ module Larrow
         }
         3.times do
           sleep 2
-          return if show(verbose:1)['keypair_ids'].count>0
+          if show(verbose:1)['keypair_ids'].count>0
+            info "instance attach keypair: #{id}"
+            return
+          end
         end
       end
 
@@ -35,7 +38,10 @@ module Larrow
         # wait for vxnet assgined
         3.times do
           sleep 5
-          return if show['vxnets'].size > 0
+          if show['vxnets'].size > 0
+            info "instance joined vxnet: #{id}"
+            return
+          end
         end
       end
 
@@ -65,6 +71,7 @@ module Larrow
             obj.id      = data['instance_id']
             obj.status  = data['status']
             obj.zone_id = zone_id
+            info "create instance: #{obj.id}"
           end
           if instances.map(&:status).uniq == [ 'running' ]
             instances.map(&:join_vxnet)
