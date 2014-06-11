@@ -7,6 +7,7 @@ require 'json'
 module Larrow
   module Qingcloud
     class Connection
+      include Logger
       URL_TEMPLATE='https://api.qingcloud.com/iaas/?%s&signature=%s'
       attr_accessor :access_key, :secret_key
 
@@ -39,6 +40,7 @@ module Larrow
 
         url = URL_TEMPLATE % [request_str, CGI.escape(signature)]
         resp = Faraday.send(method.to_sym, url)
+        debug "API #{action} #{request_str}"
 
         JSON.parse(resp.body).tap do |obj|
           if obj['ret_code']!=0
