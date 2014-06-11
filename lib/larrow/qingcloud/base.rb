@@ -1,6 +1,7 @@
 module Larrow
   module Qingcloud
     class Base
+      include Logger
       attr_accessor :id, :zone_id
       def conn
         self.class.conn
@@ -59,7 +60,7 @@ module Larrow
             begin
               return conn.service 'get', action, params
             rescue ServiceError => e
-              $stderr.puts( "%s: %s" % [e.code, e.message])
+              err( "%s: %s" % [e.code, e.message])
               sleep 15
             end
           end

@@ -5,7 +5,7 @@ module Larrow
       destroy_action 'TerminateInstances'
 
       def self.create image_id,instance_type,zone_id:'pek1',count:1,passwd:'1qaz@WSX'
-        $stderr.puts "The default password is weak, you should change it"
+        err "The default password is weak, you should change it"
         result = conn.service 'get','RunInstances',{
           image_id: image_id, 
           instance_type: instance_type,
