@@ -1,6 +1,7 @@
 module Larrow
   module Qingcloud
     class Base
+      include Logger
       attr_accessor :id, :zone_id
       def conn
         self.class.conn
@@ -57,12 +58,15 @@ module Larrow
           params = self.class.param_by [id], {zone: zone_id}
           3.times do |i|
             begin
-              return conn.service 'get', action, params
+              result = conn.service 'get', action, params
+              info "destroy #{self.class.name}: #{result}"
+              return result
             rescue ServiceError => e
-              $stderr.puts( "%s: %s" % [e.code, e.message])
+              debug "try to destroy: %s" % [e.message]
               sleep 15
             end
           end
+          raise "cannot destroy fail #{self.class}: #{id}"
         end
       end
 

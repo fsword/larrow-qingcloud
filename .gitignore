@@ -1,9 +1,12 @@
 *.gem
 *.rbc
+*.log
 **/*.swp
 .bundle
 .config
 .yardoc
+*.keys
+*.csv
 Gemfile.lock
 InstalledFiles
 _yardoc

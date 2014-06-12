@@ -5,7 +5,7 @@ module Larrow
       destroy_action 'TerminateInstances'
 
       def self.create image_id,instance_type,zone_id:'pek1',count:1,passwd:'1qaz@WSX'
-        $stderr.puts "The default password is weak, you should change it"
+        err "The default password is weak, you should change it"
         result = conn.service 'get','RunInstances',{
           image_id: image_id, 
           instance_type: instance_type,
@@ -25,7 +25,10 @@ module Larrow
         }
         3.times do
           sleep 2
-          return if show(verbose:1)['keypair_ids'].count>0
+          if show(verbose:1)['keypair_ids'].count>0
+            info "instance attach keypair: #{id}"
+            return
+          end
         end
       end
 
@@ -35,7 +38,10 @@ module Larrow
         # wait for vxnet assgined
         3.times do
           sleep 5
-          return if show['vxnets'].size > 0
+          if show['vxnets'].size > 0
+            info "instance joined vxnet: #{id}"
+            return
+          end
         end
       end
 
@@ -67,9 +73,12 @@ module Larrow
             obj.zone_id = zone_id
           end
           if instances.map(&:status).uniq == [ 'running' ]
+            info "create instance: #{instance_ids}"
             instances.map(&:join_vxnet)
             instances.map(&:attach_keypair)
             return instances
+          else
+            debug "instance wait for running: #{instance_ids}"
           end
         end
         []
