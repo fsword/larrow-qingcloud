@@ -17,7 +17,7 @@ end
 
 require "larrow/qingcloud/version"
 require 'larrow/qingcloud/logger'
-require 'larrow/qingcloud/service_error'
+require 'larrow/qingcloud/errors'
 require 'larrow/qingcloud/connection'
 require 'larrow/qingcloud/base'
 

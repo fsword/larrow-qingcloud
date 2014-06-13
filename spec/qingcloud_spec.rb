@@ -8,12 +8,6 @@ module Larrow
       Qingcloud.establish_connection access,secret
     end
 
-    it 'use_eip' do
-      objs = Qingcloud::Eip.create count:1
-      objs.count.should == 1
-      objs.first.destroy['ret_code'].should == 0
-    end
-
     it 'use images' do
       # list images
       images = Qingcloud::Image.list
@@ -21,18 +15,21 @@ module Larrow
     end
 
     it 'use_instance_with_eip' do
-      # create instance
+      # create instance and eip
       image_id      = 'trustysrvx64a'
       instance_type = 'small_a'
-      objs = Qingcloud::Instance.create(
+      instances = Qingcloud::Instance.create(
         image_id, instance_type
       )
-      objs.count.should == 1
-      instance = objs.first
+      instances.count.should == 1
+      instance = instances.first
+
+      eip = Qingcloud::Eip.create.first
+
+      instance.wait_for :running
       instance.status.should == 'running'
 
-      # create eip
-      eip = Qingcloud::Eip.create.first
+      eip.wait_for :available
 
       # bind eip to instance
       instance.associate eip

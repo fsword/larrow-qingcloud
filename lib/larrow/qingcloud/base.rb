@@ -2,16 +2,42 @@ module Larrow
   module Qingcloud
     class Base
       include Logger
-      attr_accessor :id, :zone_id
+      attr_accessor :id, :zone_id, :status
+
+      def initialize id, zone_id
+        self.id = id
+        self.zone_id = zone_id
+      end
+
       def conn
         self.class.conn
       end
 
+      def model_name
+        self.class.model_name
+      end
+
       def show params={}
         self.class.describe(
-          [id], 
+          [self], 
           {zone: zone_id}.merge(params)
         ).first
+      end
+
+      def wait_for status
+        3.times do
+          sleep 4
+          data = show
+          if data['status'] == status.to_s
+            info "#{model_name} status changed: #{id} - #{status}"
+            self.status = status.to_s
+            yield data if block_given?
+            return data
+          else
+            debug "#{model_name} wait for status: #{id} - #{data['status']}"
+          end
+        end
+        raise "#{model_name} cannot wait for #{status}"
       end
 
       def self.conn
@@ -39,8 +65,8 @@ module Larrow
       end
 
       # convert hash data to object when block given
-      def self.describe ids, params
-        params = param_by(ids, params)
+      def self.describe objs, params
+        params = param_by(objs.map(&:id), params)
         datas = conn.service(
           'get', "Describe#{model_name}s", params
         )["#{singular_name}_set"]
