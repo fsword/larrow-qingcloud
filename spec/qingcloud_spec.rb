@@ -26,8 +26,12 @@ module Larrow
 
       eip = Qingcloud::Eip.create.first
 
+      instance.vxnet_id.should be_nil
+      instance.keypair_id.should be_nil
       instance.wait_for :running
       instance.status.should == 'running'
+      instance.vxnet_id.should_not be_nil
+      instance.keypair_id.should_not be_nil
 
       eip.wait_for :available
 
