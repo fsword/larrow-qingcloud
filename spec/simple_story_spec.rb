@@ -8,35 +8,27 @@ module Larrow
       Qingcloud.establish_connection access,secret
     end
 
-    it 'use images' do
-      # list images
-      images = Qingcloud::Image.list
-      images.size.should > 0
-    end
-
-    it 'use_instance_with_eip' do
+    it 'use_instance_by_password' do
       # create instance and eip
       image_id      = 'trustysrvx64a'
       instance_type = 'small_a'
-      instances = Qingcloud::Instance.create(
-        image_id, instance_type
-      )
-      instances.count.should == 1
-      instance = instances.first
 
+      instance = Qingcloud::Instance.create(
+        image_id, instance_type, keypair_id:nil
+      ).first
       eip = Qingcloud::Eip.create.first
 
-      instance.vxnet_id.should be_nil
       instance.keypair_id.should be_nil
+      instance.vxnet_id.should_not be_nil
       instance.wait_for :running
       instance.status.should == 'running'
-      instance.vxnet_id.should_not be_nil
-      instance.keypair_id.should_not be_nil
 
       eip.wait_for :available
 
       # bind eip to instance
       instance.associate eip
+
+      binding.pry
       instance.dissociate eip
 
       # destroy instance and eip
