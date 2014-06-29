@@ -5,7 +5,7 @@ module Larrow
   describe Qingcloud do
     before do
       access, secret = load_by_default
-      Qingcloud.establish_connection access,secret
+      Qingcloud.establish_connection access, secret
     end
 
     it 'use images' do
@@ -44,11 +44,11 @@ module Larrow
       args = read_content_as_hash
       [args['qy_access_key_id'], args['qy_secret_access_key']]
     end
-    
+
     def read_content_as_hash
       file = 'access_key.csv'
-      raise "cannot find keyfile: #{file}" unless File.exist?(file)
-      Hash[*File.read(file).gsub(/[ ']/,'').split(/[\n:]/)]
+      fail "cannot find keyfile: #{file}" unless File.exist?(file)
+      Hash[*File.read(file).gsub(/[ ']/, '').split(/[\n:]/)]
     end
   end
 end

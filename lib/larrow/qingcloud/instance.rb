@@ -5,18 +5,18 @@ module Larrow
 
       destroy_action 'TerminateInstances'
 
-      def self.create image_id,instance_type,zone_id:'pek1',count:1,passwd:'1qaz@WSX',keypair_id:'kp-t82jrcvw',vxnet_id:'vxnet-0'
-        err "The default password is weak, you should change it"
-        result = conn.service 'get','RunInstances',{
-          :image_id         => image_id, 
-          :instance_type    => instance_type,
-          :zone             => zone_id, 
-          :count            => count,
-          :login_mode       => 'passwd',
-          :login_passwd     => passwd,
-          :'login_keypair'  => keypair_id,
-          :'vxnets.n'       => vxnet_id
-        }
+      def self.create(image_id, instance_type, zone_id:'pek1', count:1, passwd:'1qaz@WSX', keypair_id:'kp-t82jrcvw', vxnet_id:'vxnet-0')
+        err 'The default password is weak, you should change it'
+        result = conn.service 'get', 'RunInstances',
+                              :image_id         => image_id,
+                              :instance_type    => instance_type,
+                              :zone             => zone_id,
+                              :count            => count,
+                              :login_mode       => 'passwd',
+                              :login_passwd     => passwd,
+                              :'login_keypair'  => keypair_id,
+                              :'vxnets.n'       => vxnet_id
+
         info "instance added: #{zone_id} #{result['instances']}"
         result['instances'].map do |id|
           new(id, zone_id).tap do |i|
@@ -26,17 +26,17 @@ module Larrow
         end
       end
 
-      def attach_keypair keypair_id='kp-t82jrcvw'
+      def attach_keypair(keypair_id = 'kp-t82jrcvw')
         return if self.keypair_id
-        conn.service 'get','AttachKeyPairs',{
-          :zone     => zone_id,
-          :'instances.1' => id,
-          :'keypairs.1'  => keypair_id
-        }
+        conn.service 'get', 'AttachKeyPairs',
+                     :zone     => zone_id,
+                     :'instances.1' => id,
+                     :'keypairs.1'  => keypair_id
+
         Thread.new do
           sleep 10
           4.times do
-            if show(verbose:1)['keypair_ids'].count>0
+            if show(verbose: 1)['keypair_ids'].count > 0
               self.keypair_id = keypair_id
               info "instance attach keypair: #{id}"
               break
@@ -46,10 +46,10 @@ module Larrow
         end
       end
 
-      def join_vxnet vxnet_id='vxnet-0'
+      def join_vxnet(vxnet_id = 'vxnet-0')
         return if self.vxnet_id
-        params = param_by [id], {zone: zone_id,vxnet:vxnet_id}
-        conn.service 'get','JoinVxnet',params
+        params = param_by [id], zone: zone_id, vxnet: vxnet_id
+        conn.service 'get', 'JoinVxnet', params
         Thread.new do
           # wait for vxnet assgined
           sleep 14 # join net is too slow to wait a long time
@@ -64,22 +64,22 @@ module Larrow
         end
       end
 
-      def associate eip
-        conn.service 'get','AssociateEip',{
-          zone: zone_id,
-          instance: id,
-          eip: eip.id
-        }
+      def associate(eip)
+        conn.service 'get', 'AssociateEip',
+                     zone: zone_id,
+                     instance: id,
+                     eip: eip.id
+
         eip.wait_for :associated
       end
 
       # cannot support batch dissociating
-      def dissociate eip
-        conn.service 'get','DissociateEips',{
-          :zone     => zone_id,
-          :instance => id,
-          :'eips.1'  => eip.id
-        }
+      def dissociate(eip)
+        conn.service 'get', 'DissociateEips',
+                     :zone     => zone_id,
+                     :instance => id,
+                     :'eips.1'  => eip.id
+
         eip.wait_for :available
       end
     end

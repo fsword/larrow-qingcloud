@@ -8,17 +8,17 @@ module Larrow
   module Qingcloud
     class Connection
       include Logger
-      URL_TEMPLATE='https://api.qingcloud.com/iaas/?%s&signature=%s'
+      URL_TEMPLATE = 'https://api.qingcloud.com/iaas/?%s&signature=%s'
       attr_accessor :access_key, :secret_key
 
-      def initialize access_key, secret_key
+      def initialize(access_key, secret_key)
         self.access_key = access_key
         self.secret_key = secret_key
       end
 
-      def service method, action, params={}
+      def service(method, action, params = {})
         # Time.new.iso8601 cannot be recognized
-        time_stamp = "%sT%sZ" % Time.new.utc.to_s.split(/ /)
+        time_stamp = '%sT%sZ' % Time.new.utc.to_s.split(/ /)
         params.update(
           action: action,
           time_stamp: time_stamp,
@@ -29,7 +29,7 @@ module Larrow
         )
 
         request_str = params.keys.sort.map do |k|
-          "#{CGI::escape k.to_s}=#{CGI::escape params[k].to_s}"
+          "#{CGI.escape k.to_s}=#{CGI.escape params[k].to_s}"
         end.join('&')
 
         signed_text = "%s\n/iaas/\n%s" % [method.upcase, request_str]
@@ -43,8 +43,8 @@ module Larrow
         debug "API #{action} #{request_str}"
 
         JSON.parse(resp.body).tap do |obj|
-          if obj['ret_code']!=0
-            raise ServiceError.new(obj['ret_code'], obj['message'])
+          if obj['ret_code'] != 0
+            fail ServiceError.new(obj['ret_code'], obj['message'])
           end
         end
       end

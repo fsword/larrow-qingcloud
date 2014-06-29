@@ -5,7 +5,7 @@ module Larrow
   describe Qingcloud do
     before do
       access, secret = load_by_default
-      Qingcloud.establish_connection access,secret
+      Qingcloud.establish_connection access, secret
     end
 
     it 'use_instance_by_password' do
@@ -14,7 +14,7 @@ module Larrow
       instance_type = 'small_a'
 
       instance = Qingcloud::Instance.create(
-        image_id, instance_type, keypair_id:nil
+        image_id, instance_type, keypair_id: nil
       ).first
       eip = Qingcloud::Eip.create.first
 
@@ -40,11 +40,11 @@ module Larrow
       args = read_content_as_hash
       [args['qy_access_key_id'], args['qy_secret_access_key']]
     end
-    
+
     def read_content_as_hash
       file = 'access_key.csv'
-      raise "cannot find keyfile: #{file}" unless File.exist?(file)
-      Hash[*File.read(file).gsub(/[ ']/,'').split(/[\n:]/)]
+      fail "cannot find keyfile: #{file}" unless File.exist?(file)
+      Hash[*File.read(file).gsub(/[ ']/, '').split(/[\n:]/)]
     end
   end
 end
