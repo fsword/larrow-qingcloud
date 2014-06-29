@@ -1,5 +1,6 @@
 module Larrow
   module Qingcloud
+    # External address
     class Eip < Base
       attr_accessor :address
       destroy_action 'ReleaseEips'

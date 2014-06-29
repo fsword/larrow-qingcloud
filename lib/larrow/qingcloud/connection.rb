@@ -6,6 +6,7 @@ require 'json'
 
 module Larrow
   module Qingcloud
+    # Connection delegator for Qingcloud
     class Connection
       include Logger
       URL_TEMPLATE = 'https://api.qingcloud.com/iaas/?%s&signature=%s'
@@ -18,7 +19,7 @@ module Larrow
 
       def service(method, action, params = {})
         # Time.new.iso8601 cannot be recognized
-        time_stamp = '%sT%sZ' % Time.new.utc.to_s.split(/ /)
+        time_stamp = Time.new.utc.strftime '%Y-%m-%dT%TZ'
         params.update(
           action: action,
           time_stamp: time_stamp,
@@ -32,13 +33,13 @@ module Larrow
           "#{CGI.escape k.to_s}=#{CGI.escape params[k].to_s}"
         end.join('&')
 
-        signed_text = "%s\n/iaas/\n%s" % [method.upcase, request_str]
+        signed_text = format "%s\n/iaas/\n%s", method.upcase, request_str
 
         signature = Base64.encode64(OpenSSL::HMAC.digest(
           OpenSSL::Digest.new('sha256'), secret_key, signed_text
         )).strip
 
-        url = URL_TEMPLATE % [request_str, CGI.escape(signature)]
+        url = format URL_TEMPLATE, request_str, CGI.escape(signature)
         resp = Faraday.send(method.to_sym, url)
         debug "API #{action} #{request_str}"
 

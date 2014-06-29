@@ -1,5 +1,6 @@
 module Larrow
   module Qingcloud
+    # Error with code
     class ServiceError < RuntimeError
       attr_accessor :code
       def initialize(code, message)

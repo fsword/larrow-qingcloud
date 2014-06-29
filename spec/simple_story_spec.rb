@@ -21,18 +21,17 @@ module Larrow
       instance.keypair_id.should be_nil
       instance.vxnet_id.should_not be_nil
       instance.wait_for :running
-      instance.status.should == 'running'
+      instance.should be_running
 
       eip.wait_for :available
 
       # bind eip to instance
       instance.associate eip
 
-      binding.pry
       instance.dissociate eip
 
       # destroy instance and eip
-      instance.destroy['ret_code'].should == 0
+      instance.destroy['ret_code'].should be_zero
       eip.destroy
     end
 

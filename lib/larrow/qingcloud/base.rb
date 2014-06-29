@@ -1,5 +1,6 @@
 module Larrow
   module Qingcloud
+    # base class for Qingcloud model
     class Base
       include Logger
       attr_accessor :id, :zone_id, :status
@@ -30,7 +31,7 @@ module Larrow
           data = show
           if data['status'] == status.to_s
             info "#{model_name} status changed: #{id} - #{status}"
-            self.status = status.to_s
+            self.status = status
             yield data if block_given?
             return data
           else
@@ -41,7 +42,18 @@ module Larrow
       end
 
       def self.conn
-        @@conn ||= Qingcloud.connection
+        @conn ||= Qingcloud.connection
+      end
+
+      # just for state access, such as:
+      #   model.running?
+      # do not affect `respond_to?`
+      def method_missing(method, *args, &block)
+        if method.to_s.last == '?'
+          status == method.to_s[0..-2].to_sym
+        else
+          super
+        end
       end
 
       # multi names( used as param_name )
@@ -57,7 +69,7 @@ module Larrow
       end
 
       def param_by(*args)
-        self.class.param_by *args
+        self.class.param_by(*args)
       end
 
       def self.param_by(ids, init_params)
@@ -90,7 +102,7 @@ module Larrow
               info "destroy #{self.class.name}: #{result}"
               return result
             rescue ServiceError => e
-              debug 'try to destroy: %s' % [e.message]
+              debug format('try to destroy: %s', e.message)
               sleep 15
             end
           end

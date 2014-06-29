@@ -1,6 +1,8 @@
 require 'logger'
 module Larrow
   module Qingcloud
+    # Qingcloud logger
+    # default log file: $current_dir/qingcloud.log
     module Logger
       def self.included(base)
         base.extend ClassMethods
@@ -8,7 +10,7 @@ module Larrow
 
       module ClassMethods
         def logger
-          @logger ||= ::Logger.new "#{$LOG_FOLDER}qingcloud.log"
+          @logger ||= ::Logger.new(ENV['QC_LOGGER'] || 'qingcloud.log')
         end
 
         def debug(msg)
