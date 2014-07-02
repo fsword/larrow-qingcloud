@@ -6,19 +6,20 @@ require 'json'
 
 module Larrow
   module Qingcloud
+    # Connection delegator for Qingcloud
     class Connection
       include Logger
-      URL_TEMPLATE='https://api.qingcloud.com/iaas/?%s&signature=%s'
+      URL_TEMPLATE = 'https://api.qingcloud.com/iaas/?%s&signature=%s'
       attr_accessor :access_key, :secret_key
 
-      def initialize access_key, secret_key
+      def initialize(access_key, secret_key)
         self.access_key = access_key
         self.secret_key = secret_key
       end
 
-      def service method, action, params={}
+      def service(method, action, params = {})
         # Time.new.iso8601 cannot be recognized
-        time_stamp = "%sT%sZ" % Time.new.utc.to_s.split(/ /)
+        time_stamp = Time.new.utc.strftime '%Y-%m-%dT%TZ'
         params.update(
           action: action,
           time_stamp: time_stamp,
@@ -29,22 +30,22 @@ module Larrow
         )
 
         request_str = params.keys.sort.map do |k|
-          "#{CGI::escape k.to_s}=#{CGI::escape params[k].to_s}"
+          "#{CGI.escape k.to_s}=#{CGI.escape params[k].to_s}"
         end.join('&')
 
-        signed_text = "%s\n/iaas/\n%s" % [method.upcase, request_str]
+        signed_text = format "%s\n/iaas/\n%s", method.upcase, request_str
 
         signature = Base64.encode64(OpenSSL::HMAC.digest(
           OpenSSL::Digest.new('sha256'), secret_key, signed_text
         )).strip
 
-        url = URL_TEMPLATE % [request_str, CGI.escape(signature)]
+        url = format URL_TEMPLATE, request_str, CGI.escape(signature)
         resp = Faraday.send(method.to_sym, url)
         debug "API #{action} #{request_str}"
 
         JSON.parse(resp.body).tap do |obj|
-          if obj['ret_code']!=0
-            raise ServiceError.new(obj['ret_code'], obj['message'])
+          if obj['ret_code'] != 0
+            fail ServiceError.new(obj['ret_code'], obj['message'])
           end
         end
       end

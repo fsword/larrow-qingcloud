@@ -5,79 +5,82 @@ module Larrow
 
       destroy_action 'TerminateInstances'
 
-      def self.create image_id,instance_type,zone_id:'pek1',count:1,passwd:'1qaz@WSX'
-        err "The default password is weak, you should change it"
-        result = conn.service 'get','RunInstances',{
-          image_id: image_id, 
-          instance_type: instance_type,
-          zone:zone_id, 
-          count: count,
-          login_mode: 'passwd',
-          login_passwd: passwd
-        }
-        info "instance added: #{zone_id} #{result['instances']}"
-        result['instances'].map{|id| new id, zone_id}
-      end
+      def self.create(image_id, instance_type, zone_id:'pek1', count:1, passwd:'1qaz@WSX', keypair_id:'kp-t82jrcvw', vxnet_id:'vxnet-0')
+        err 'The default password is weak, you should change it'
+        result = conn.service 'get', 'RunInstances',
+                              :image_id         => image_id,
+                              :instance_type    => instance_type,
+                              :zone             => zone_id,
+                              :count            => count,
+                              :login_mode       => 'passwd',
+                              :login_passwd     => passwd,
+                              :'login_keypair'  => keypair_id,
+                              :'vxnets.n'       => vxnet_id
 
-      def attach_keypair keypair_id='kp-t82jrcvw'
-        return if self.keypair_id
-        conn.service 'get','AttachKeyPairs',{
-          :zone     => zone_id,
-          :'instances.1' => id,
-          :'keypairs.1'  => keypair_id
-        }
-        lambda do
-          3.times do
-            sleep 5
-            if show(verbose:1)['keypair_ids'].count>0
-              self.keypair_id = keypair_id
-              info "instance attach keypair: #{id}"
-              return
-            end
+        info "instance added: #{zone_id} #{result['instances']}"
+        result['instances'].map do |id|
+          new(id, zone_id).tap do |i|
+            i.keypair_id = keypair_id
+            i.vxnet_id   = vxnet_id
           end
         end
       end
 
-      def join_vxnet vxnet_id='vxnet-0'
+      def attach_keypair(keypair_id = 'kp-t82jrcvw')
+        return if self.keypair_id
+        conn.service 'get', 'AttachKeyPairs',
+                     :zone     => zone_id,
+                     :'instances.1' => id,
+                     :'keypairs.1'  => keypair_id
+
+        Thread.new do
+          sleep 10
+          4.times do
+            if show(verbose: 1)['keypair_ids'].count > 0
+              self.keypair_id = keypair_id
+              info "instance attach keypair: #{id}"
+              break
+            end
+            sleep 2
+          end
+        end
+      end
+
+      def join_vxnet(vxnet_id = 'vxnet-0')
         return if self.vxnet_id
-        params = param_by [id], {zone: zone_id,vxnet:vxnet_id}
-        conn.service 'get','JoinVxnet',params
-        # wait for vxnet assgined
-        lambda do
-          3.times do
-            sleep 8 # join net is too slow to wait a long time
+        params = param_by [id], zone: zone_id, vxnet: vxnet_id
+        conn.service 'get', 'JoinVxnet', params
+        Thread.new do
+          # wait for vxnet assgined
+          sleep 14 # join net is too slow to wait a long time
+          4.times do
             if show['vxnets'].size > 0
               self.vxnet_id = vxnet_id
               info "instance joined vxnet: #{id}"
-              return
+              break
             end
+            sleep 2
           end
         end
       end
 
-      def associate eip
-        conn.service 'get','AssociateEip',{
-          zone: zone_id,
-          instance: id,
-          eip: eip.id
-        }
+      def associate(eip)
+        conn.service 'get', 'AssociateEip',
+                     zone: zone_id,
+                     instance: id,
+                     eip: eip.id
+
         eip.wait_for :associated
       end
 
       # cannot support batch dissociating
-      def dissociate eip
-        conn.service 'get','DissociateEips',{
-          :zone     => zone_id,
-          :instance => id,
-          :'eips.1'  => eip.id
-        }
-        eip.wait_for :available
-      end
+      def dissociate(eip)
+        conn.service 'get', 'DissociateEips',
+                     :zone     => zone_id,
+                     :instance => id,
+                     :'eips.1'  => eip.id
 
-      def wait_for status
-        super do |data|
-          [attach_keypair, join_vxnet].map &:call
-        end
+        eip.wait_for :available
       end
     end
   end
