@@ -1,3 +1,4 @@
+require 'timeout'
 module Larrow
   module Qingcloud
     # base class for Qingcloud model
@@ -26,19 +27,22 @@ module Larrow
       end
 
       def wait_for(status)
-        3.times do
-          sleep 4
-          data = show
-          if data['status'] == status.to_s
-            info "#{model_name} status changed: #{id} - #{status}"
-            self.status = status
-            yield data if block_given?
-            return data
-          else
-            debug "#{model_name} wait for status: #{id} - #{data['status']}"
+        Timeout.timeout(90) do
+          loop do
+            sleep 5
+            data = show
+            if data['status'] == status.to_s
+              info "#{model_name} status changed: #{id} - #{status}"
+              self.status = status
+              yield data if block_given?
+              return data
+            else
+              debug "#{model_name} wait for status: #{id} - #{data['status']}"
+            end
           end
         end
-        fail "#{model_name} cannot wait for #{status}"
+      rescue Timeout::Error
+        fail "#{model_name} wait for #{status} timeout"
       end
 
       def self.conn
