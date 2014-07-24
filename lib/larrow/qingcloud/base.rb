@@ -26,10 +26,10 @@ module Larrow
         ).first
       end
 
-      def wait_for(status)
+      def wait_for(status,checknow=nil)
+        sleep 5 unless checknow
         Timeout.timeout(90) do
           loop do
-            sleep 5
             data = show
             if data['status'] == status.to_s
               info "#{model_name} status changed: #{id} - #{status}"
@@ -39,6 +39,7 @@ module Larrow
             else
               debug "#{model_name} wait for status: #{id} - #{data['status']}"
             end
+            sleep 5
           end
         end
       rescue Timeout::Error
