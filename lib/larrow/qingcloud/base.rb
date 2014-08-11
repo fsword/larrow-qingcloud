@@ -4,11 +4,10 @@ module Larrow
     # base class for Qingcloud model
     class Base
       include Logger
-      attr_accessor :id, :zone_id, :status
+      attr_accessor :id, :status
 
-      def initialize(id, zone_id)
+      def initialize(id)
         self.id = id
-        self.zone_id = zone_id
       end
 
       def conn
@@ -22,7 +21,7 @@ module Larrow
       def show(params = {})
         self.class.describe(
           [self],
-          { zone: zone_id }.merge(params)
+          params
         ).first
       end
 
@@ -100,7 +99,7 @@ module Larrow
 
       def self.destroy_action(action)
         define_method :destroy do
-          params = self.class.param_by [id], zone: zone_id
+          params = self.class.param_by [id]
           3.times do |_i|
             begin
               result = conn.service 'get', action, params

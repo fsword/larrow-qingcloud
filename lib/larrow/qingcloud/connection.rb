@@ -10,17 +10,19 @@ module Larrow
     class Connection
       include Logger
       URL_TEMPLATE = 'https://api.qingcloud.com/iaas/?%s&signature=%s'
-      attr_accessor :access_key, :secret_key
+      attr_accessor :access_key, :secret_key, :zone_id
 
-      def initialize(access_key, secret_key)
+      def initialize(access_key, secret_key, zone_id:'pek1')
         self.access_key = access_key
         self.secret_key = secret_key
+        self.zone_id    = zone_id
       end
 
       def service(method, action, params = {})
         # Time.new.iso8601 cannot be recognized
         time_stamp = Time.new.utc.strftime '%Y-%m-%dT%TZ'
         params.update(
+          zone: zone_id,
           action: action,
           time_stamp: time_stamp,
           access_key_id: access_key,

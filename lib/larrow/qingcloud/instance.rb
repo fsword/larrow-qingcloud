@@ -6,7 +6,6 @@ module Larrow
       destroy_action 'TerminateInstances'
 
       def self.create(image_id, instance_type, 
-                      zone_id:'pek1', 
                       count:1, 
                       login_mode: 'passwd',
                       passwd:'1qaz@WSX', 
@@ -16,16 +15,15 @@ module Larrow
         result = conn.service 'get', 'RunInstances',
                               :image_id         => image_id,
                               :instance_type    => instance_type,
-                              :zone             => zone_id,
                               :count            => count,
                               :login_mode       => login_mode,
                               :login_passwd     => passwd,
                               :'login_keypair'  => keypair_id,
                               :'vxnets.n'       => vxnet_id
 
-        info "instance added: #{zone_id} #{result['instances']}"
+        info "instance added: #{result['instances']}"
         result['instances'].map do |id|
-          new(id, zone_id).tap do |i|
+          new(id).tap do |i|
             i.keypair_id = keypair_id
             i.vxnet_id   = vxnet_id
           end
@@ -35,7 +33,6 @@ module Larrow
       def attach_keypair(keypair_id = 'kp-t82jrcvw')
         return if self.keypair_id
         conn.service 'get', 'AttachKeyPairs',
-                     :zone     => zone_id,
                      :'instances.1' => id,
                      :'keypairs.1'  => keypair_id
 
@@ -54,7 +51,7 @@ module Larrow
 
       def join_vxnet(vxnet_id = 'vxnet-0')
         return if self.vxnet_id
-        params = param_by [id], zone: zone_id, vxnet: vxnet_id
+        params = param_by [id], vxnet: vxnet_id
         conn.service 'get', 'JoinVxnet', params
         Thread.new do
           # wait for vxnet assgined
@@ -72,7 +69,6 @@ module Larrow
 
       def associate(eip)
         conn.service 'get', 'AssociateEip',
-                     zone: zone_id,
                      instance: id,
                      eip: eip.id
 
@@ -82,7 +78,6 @@ module Larrow
       # cannot support batch dissociating
       def dissociate(eip)
         conn.service 'get', 'DissociateEips',
-                     :zone     => zone_id,
                      :instance => id,
                      :'eips.1'  => eip.id
 
