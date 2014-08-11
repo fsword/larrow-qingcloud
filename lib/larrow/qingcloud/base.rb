@@ -76,7 +76,7 @@ module Larrow
         self.class.param_by(*args)
       end
 
-      def self.param_by(ids, init_params)
+      def self.param_by(ids, init_params={})
         ids.each_with_index.reduce(init_params) do |result, (id, index)|
           result.update :"#{plural_name}.#{index + 1}" => id
         end
