@@ -4,11 +4,10 @@ module Larrow
     # base class for Qingcloud model
     class Base
       include Logger
-      attr_accessor :id, :zone_id, :status
+      attr_accessor :id, :status
 
-      def initialize(id, zone_id)
+      def initialize(id)
         self.id = id
-        self.zone_id = zone_id
       end
 
       def conn
@@ -22,14 +21,14 @@ module Larrow
       def show(params = {})
         self.class.describe(
           [self],
-          { zone: zone_id }.merge(params)
+          params
         ).first
       end
 
-      def wait_for(status)
+      def wait_for(status,checknow=nil)
+        sleep 5 unless checknow
         Timeout.timeout(90) do
           loop do
-            sleep 5
             data = show
             if data['status'] == status.to_s
               info "#{model_name} status changed: #{id} - #{status}"
@@ -39,6 +38,7 @@ module Larrow
             else
               debug "#{model_name} wait for status: #{id} - #{data['status']}"
             end
+            sleep 5
           end
         end
       rescue Timeout::Error
@@ -76,7 +76,7 @@ module Larrow
         self.class.param_by(*args)
       end
 
-      def self.param_by(ids, init_params)
+      def self.param_by(ids, init_params={})
         ids.each_with_index.reduce(init_params) do |result, (id, index)|
           result.update :"#{plural_name}.#{index + 1}" => id
         end
@@ -99,7 +99,7 @@ module Larrow
 
       def self.destroy_action(action)
         define_method :destroy do
-          params = self.class.param_by [id], zone: zone_id
+          params = self.class.param_by [id]
           3.times do |_i|
             begin
               result = conn.service 'get', action, params

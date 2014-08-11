@@ -5,14 +5,13 @@ module Larrow
       attr_accessor :address
       destroy_action 'ReleaseEips'
 
-      def self.create(zone_id:'pek1', bandwidth:1, count:1)
+      def self.create(bandwidth:1, count:1)
         result = conn.service 'get', 'AllocateEips',
-                              zone: zone_id,
                               bandwidth: bandwidth,
                               count: count
 
-        info "EIP added: #{zone_id} #{result['eips']}"
-        result['eips'].map { |id| new id, zone_id }
+        info "EIP added: #{result['eips']}"
+        result['eips'].map { |id| new id }
       end
 
       def wait_for(status)
