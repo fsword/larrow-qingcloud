@@ -11,7 +11,7 @@ module Larrow
     it 'use images' do
       # list images
       images = Qingcloud::Image.list
-      images.size.should > 0
+      expect(images.size).to be > 0
     end
 
     it 'use_instance_by_keypair' do
@@ -24,10 +24,10 @@ module Larrow
       ).first
       eip = Qingcloud::Eip.create.first
 
-      instance.vxnet_id.should_not be_nil
-      instance.keypair_id.should_not be_nil
+      expect(instance.vxnet_id).not_to be nil
+      expect(instance.keypair_id).not_to be nil
       instance.wait_for :running
-      instance.should be_running
+      expect(instance.running?).to be true
 
       eip.wait_for :available
 
@@ -36,7 +36,7 @@ module Larrow
       instance.dissociate eip
 
       # destroy instance and eip
-      instance.destroy['ret_code'].should be_zero
+      expect(instance.destroy['ret_code']).to be_zero
       eip.destroy
     end
 
