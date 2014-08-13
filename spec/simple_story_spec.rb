@@ -18,10 +18,10 @@ module Larrow
       ).first
       eip = Qingcloud::Eip.create.first
 
-      instance.keypair_id.should be_nil
-      instance.vxnet_id.should_not be_nil
+      expect(instance.keypair_id).to be_nil
+      expect(instance.vxnet_id).not_to be_nil
       instance.wait_for :running
-      instance.should be_running
+      expect(instance.running?).to be true
 
       eip.wait_for :available
 
@@ -31,7 +31,7 @@ module Larrow
       instance.dissociate eip
 
       # destroy instance and eip
-      instance.destroy['ret_code'].should be_zero
+      expect(instance.destroy['ret_code']).to be_zero
       eip.destroy
     end
 
