@@ -37,7 +37,7 @@ module Larrow
                      :'keypairs.1'  => keypair_id
 
         Thread.new do
-          sleep 10
+          sleep 2
           4.times do
             if show(verbose: 1)['keypair_ids'].count > 0
               self.keypair_id = keypair_id
@@ -55,7 +55,7 @@ module Larrow
         conn.service 'get', 'JoinVxnet', params
         Thread.new do
           # wait for vxnet assgined
-          sleep 14 # join net is too slow to wait a long time
+          sleep 2 # join net is too slow to wait a long time
           4.times do
             if show['vxnets'].size > 0
               self.vxnet_id = vxnet_id

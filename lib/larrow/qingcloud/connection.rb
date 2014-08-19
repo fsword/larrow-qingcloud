@@ -47,7 +47,8 @@ module Larrow
 
         JSON.parse(resp.body).tap do |obj|
           if obj['ret_code'] != 0
-            fail ServiceError.new(obj['ret_code'], obj['message'])
+            debug "Service Error(#{obj['ret_code']}): #{obj['message']}"
+            fail ServiceError, obj['message']
           end
         end
       end

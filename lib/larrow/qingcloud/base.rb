@@ -26,7 +26,7 @@ module Larrow
       end
 
       def wait_for(status,checknow=nil)
-        sleep 5 unless checknow
+        sleep 2 unless checknow
         Timeout.timeout(90) do
           loop do
             data = show
@@ -38,7 +38,7 @@ module Larrow
             else
               debug "#{model_name} wait for status: #{id} - #{data['status']}"
             end
-            sleep 5
+            sleep 2
           end
         end
       rescue Timeout::Error
@@ -100,14 +100,15 @@ module Larrow
       def self.destroy_action(action)
         define_method :destroy do
           params = self.class.param_by [id]
-          3.times do |_i|
-            begin
-              result = conn.service 'get', action, params
-              info "destroy #{self.class.name}: #{result}"
-              return result
-            rescue ServiceError => e
-              debug format('try to destroy: %s', e.message)
-              sleep 15
+          Timeout.timeout(30) do
+            loop do
+              begin
+                result = conn.service 'get', action, params
+                info "destroy #{self.class.name}: #{result}"
+                return result
+              rescue ServiceError => e
+                sleep 2
+              end
             end
           end
           fail "cannot destroy fail #{self.class}: #{id}"
