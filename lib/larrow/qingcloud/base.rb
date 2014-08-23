@@ -101,10 +101,10 @@ module Larrow
       def self.destroy_action(action)
         define_method :destroy do
           params = self.class.param_by [id]
-          Timeout.timeout(30) do
+          Timeout.timeout(90) do
             loop do
               begin
-                result = conn.service 'get', action, params
+                result = conn.get action, params
                 info "destroy #{self.class.name}: #{result}"
                 return result
               rescue ServiceError => e
