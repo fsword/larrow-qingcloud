@@ -1,22 +1,16 @@
 require 'spec_helper.rb'
 
-module Larrow
-  describe Qingcloud do
-    it 'use images' do
-      # list images
-      images = Qingcloud::Image.list
-      expect(images.size).to be > 0
-    end
-
+module Larrow::Qingcloud
+  describe 'whole story' do
     it 'use_instance_by_keypair' do
       # create instance and eip
       image_id      = 'trustysrvx64a'
       instance_type = 'small_a'
 
-      instance = Qingcloud::Instance.create(
+      instance = Instance.create(
         image_id, instance_type
       ).first
-      eip = Qingcloud::Eip.create.first
+      eip = Eip.create.first
 
       expect(instance.vxnet_id).not_to be nil
       expect(instance.keypair_id).not_to be nil

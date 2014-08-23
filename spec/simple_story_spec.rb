@@ -1,16 +1,16 @@
 require 'spec_helper.rb'
 
-module Larrow
-  describe Qingcloud do
+module Larrow::Qingcloud
+  describe 'simple story' do
     it 'use_instance_by_password' do
       # create instance and eip
       image_id      = 'trustysrvx64a'
       instance_type = 'small_a'
 
-      instance = Qingcloud::Instance.create(
+      instance = Instance.create(
         image_id, instance_type, keypair_id: nil
       ).first
-      eip = Qingcloud::Eip.create.first
+      eip = Eip.create.first
 
       expect(instance.keypair_id).to be_nil
       expect(instance.vxnet_id).not_to be_nil
