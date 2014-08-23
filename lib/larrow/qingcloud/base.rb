@@ -6,8 +6,9 @@ module Larrow
       include Logger
       attr_accessor :id, :status
 
-      def initialize(id)
+      def initialize(id,status=nil)
         self.id = id
+        self.status = status.nil? ? nil : status.to_sym
       end
 
       def conn
