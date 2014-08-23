@@ -52,6 +52,10 @@ module Larrow
           end
         end
       end
+
+      def get action, params = {}
+        service 'get', action, params
+      end
     end
   end
 end
