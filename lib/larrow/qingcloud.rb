@@ -4,8 +4,8 @@ require 'active_support/core_ext/string'
 module Larrow
   # Qingcloud ruby sdk
   module Qingcloud
-    def self.establish_connection(access_key, secret_key)
-      @connection ||= Connection.new access_key, secret_key
+    def self.establish_connection(access_key, secret_key, zone_id)
+      @connection ||= Connection.new access_key, secret_key, zone_id
     end
     class << self
       attr_reader :connection

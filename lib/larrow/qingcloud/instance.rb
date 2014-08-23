@@ -5,16 +5,19 @@ module Larrow
 
       destroy_action 'TerminateInstances'
 
-      def self.create(image_id, instance_type, 
+      def self.create(image_id,
+                      cpu:1,
+                      memory:1024,
                       count:1, 
                       login_mode: 'passwd',
                       passwd:'1qaz@WSX', 
-                      keypair_id:'kp-t82jrcvw', 
+                      keypair_id:nil, 
                       vxnet_id:'vxnet-0')
         err 'The default password is weak, you should change it'
         result = conn.service 'get', 'RunInstances',
                               :image_id         => image_id,
-                              :instance_type    => instance_type,
+                              :cpu              => cpu,
+                              :memory           => memory,
                               :count            => count,
                               :login_mode       => login_mode,
                               :login_passwd     => passwd,

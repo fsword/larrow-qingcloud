@@ -5,10 +5,9 @@ module Larrow::Qingcloud
     it 'use_instance_by_password' do
       # create instance and eip
       image_id      = 'trustysrvx64a'
-      instance_type = 'small_a'
 
       instance = Instance.create(
-        image_id, instance_type, keypair_id: nil
+        image_id, cpu:1, memory: 1024, keypair_id: nil
       ).first
       eip = Eip.create.first
 
@@ -21,7 +20,6 @@ module Larrow::Qingcloud
 
       # bind eip to instance
       instance.associate eip
-
       instance.dissociate eip
 
       # destroy instance and eip

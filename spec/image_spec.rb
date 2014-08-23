@@ -7,10 +7,9 @@ module Larrow::Qingcloud
     end
 
     it 'capture instance' do
-      instance_type = 'small_a'
       image = Image.list.select{|i| i.status == :available}.first
 
-      instance = Instance.create(image.id, instance_type).first
+      instance = Instance.create(image.id).first
       instance.wait_for :running
       instance.stop(true)
       new_image = Image.create instance.id

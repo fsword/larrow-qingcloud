@@ -22,7 +22,7 @@ module Helpers
   
   def establish_connection
     access, secret = load_by_default
-    Qingcloud.establish_connection access, secret
+    Qingcloud.establish_connection access, secret, 'pek2'
   end
 end
 
