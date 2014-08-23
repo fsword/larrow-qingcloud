@@ -83,6 +83,13 @@ module Larrow
 
         eip.wait_for :available
       end
+
+      def stop sync=false
+        conn.get 'StopInstances', :'instances.1' => id
+        if sync
+          wait_for :stopped
+        end
+      end
     end
   end
 end

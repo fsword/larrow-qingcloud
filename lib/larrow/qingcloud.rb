@@ -11,8 +11,8 @@ module Larrow
       attr_reader :connection
     end
     autoload :Instance, 'larrow/qingcloud/instance'
-    autoload :Image,    'larrow/qingcloud/image'
     autoload :Eip,      'larrow/qingcloud/eip'
+    autoload :Image,    'larrow/qingcloud/image'
   end
 end
 
