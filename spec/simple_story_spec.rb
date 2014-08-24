@@ -6,25 +6,16 @@ module Larrow::Qingcloud
       # create instance and eip
       image_id      = 'trustysrvx64a'
 
-      instance = Instance.create(
-        image_id, cpu:1, memory: 1024, keypair_id: nil
-      ).first
+      instance = Instance.create(image_id).first
       eip = Eip.create.first
 
-      expect(instance.keypair_id).to be_nil
-      expect(instance.vxnet_id).not_to be_nil
-      instance.wait_for :running
-      expect(instance.running?).to be true
-
-      eip.wait_for :available
-
       # bind eip to instance
-      instance.associate eip
-      instance.dissociate eip
+      eip.associate instance
+      eip.dissociate instance
 
       # destroy instance and eip
       expect(instance.destroy['ret_code']).to be_zero
-      eip.destroy
+      eip.destroy.force
     end
   end
 end
