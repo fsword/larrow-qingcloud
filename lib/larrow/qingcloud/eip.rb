@@ -11,7 +11,7 @@ module Larrow
                               count: count
 
         info "EIP added: #{result['eips']}"
-        result['eips'].map { |id| new id }
+        result['eips'].map{ |id| new(id).wait_for :available }
       end
 
       def wait_for(status)
@@ -19,6 +19,24 @@ module Larrow
           self.address = data['eip_addr']
         end
       end
+
+      def associate(instance)
+        conn.service 'get', 'AssociateEip',
+                     instance: instance.id,
+                     eip: id
+
+        wait_for(:associated).force
+      end
+
+      # cannot support batch dissociating
+      def dissociate(instance)
+        conn.service 'get', 'DissociateEips',
+                     :instance => instance.id,
+                     :'eips.1'  => id
+
+        wait_for(:available).force
+      end
+
     end
   end
 end

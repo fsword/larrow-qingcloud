@@ -29,7 +29,7 @@ module Larrow
           new(id).tap do |i|
             i.keypair_id = keypair_id
             i.vxnet_id   = vxnet_id
-          end
+          end.wait_for :running
         end
       end
 
@@ -70,27 +70,10 @@ module Larrow
         end
       end
 
-      def associate(eip)
-        conn.service 'get', 'AssociateEip',
-                     instance: id,
-                     eip: eip.id
-
-        eip.wait_for :associated
-      end
-
-      # cannot support batch dissociating
-      def dissociate(eip)
-        conn.service 'get', 'DissociateEips',
-                     :instance => id,
-                     :'eips.1'  => eip.id
-
-        eip.wait_for :available
-      end
-
       def stop sync=false
         conn.get 'StopInstances', :'instances.1' => id
         if sync
-          wait_for :stopped
+          wait_for(:stopped).force
         end
       end
     end
