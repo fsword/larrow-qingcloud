@@ -6,9 +6,16 @@ module Larrow
       include Logger
       attr_accessor :id, :status, :delegator
 
-      def initialize(id,status=nil)
+      def initialize(id,options={})
         self.id = id
-        self.status = status.nil? ? nil : status.to_sym
+        options.each_pair do |k,v|
+          self.send "#{k}=",v
+        end
+      end
+
+      # status always be symbol
+      def status= status
+        @status = status.nil? ? nil : status.to_sym
       end
 
       def conn

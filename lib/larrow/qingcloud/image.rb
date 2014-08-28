@@ -9,7 +9,8 @@ module Larrow
         conn.
           get('DescribeImages',options)['image_set'].
           map do |hash|
-            new(hash['image_id'],hash['status'],hash['platform'],hash['provider'])
+            new hash['image_id'],
+                hash.slice('status','platform','provider')
           end
       end
 

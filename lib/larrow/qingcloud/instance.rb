@@ -26,10 +26,9 @@ module Larrow
 
         info "instance added: #{result['instances']}"
         result['instances'].map do |id|
-          new(id).tap do |i|
-            i.keypair_id = keypair_id
-            i.vxnet_id   = vxnet_id
-          end.wait_for :running
+            new(
+              id,keypair_id: keypair_id,vxnet_id:   vxnet_id
+            ).wait_for :running
         end
       end
 

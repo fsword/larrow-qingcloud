@@ -1,5 +1,6 @@
 require 'active_support/deprecation'
 require 'active_support/core_ext/string'
+require 'active_support/core_ext/hash'
 require 'larrow/promise/promise'
 require 'larrow/promise/future'
 
