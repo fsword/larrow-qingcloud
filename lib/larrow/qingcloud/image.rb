@@ -4,14 +4,11 @@ module Larrow
       attr_accessor :platform, :provider
       destroy_action 'DeleteImages'
 
-      def self.list provider=:system
-        options = {:provider => provider}
-        conn.
-          get('DescribeImages',options)['image_set'].
-          map do |hash|
-            new hash['image_id'],
-                hash.slice('status','platform','provider')
-          end
+      def self.list(provider=:system)
+        describe([],{:provider => provider}) do |hash|
+          new hash['image_id'],
+            hash.slice('status','platform','provider')
+        end
       end
 
       def self.create instance_id
