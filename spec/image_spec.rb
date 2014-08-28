@@ -19,5 +19,19 @@ module Larrow::Qingcloud
       expect(instance.destroy['ret_code']).to be_zero
       expect(new_image.destroy['ret_code']).to be_zero
     end
+
+    it 'create from snapshot' do
+      image = Image.list.select{|i| i.status == :available}.first
+
+      instance = Instance.
+        create(image.id).
+        first
+      snapshot = Snapshot.create(instance.id).first
+      new_image = Image.create_from_snapshot snapshot.id
+
+      expect(instance.destroy['ret_code']).to be_zero
+      expect(snapshot.destroy['ret_code']).to be_zero
+      expect(new_image.destroy['ret_code']).to be_zero
+    end
   end
 end
