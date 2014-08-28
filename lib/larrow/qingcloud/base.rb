@@ -27,26 +27,22 @@ module Larrow
       end
 
       def show(params = {})
-        self.class.describe(
-          [self],
-          params
-        ).first
+        self.class.describe([self],params).first
       end
 
+      # block method, should be delayed at caller function
       def wait_for(status)
-        future(timeout:90) do
-          loop do
-            data = show
-            if data['status'] == status.to_s
-              info "#{model_name} status changed: #{id} - #{status}"
-              self.status = status
-              yield data if block_given?
-              break self
-            else
-              debug "#{model_name} wait for status: #{id} - #{data['status']}"
-            end
-            sleep 2
+        loop do
+          data = show
+          if data['status'].to_sym == status
+            info "#{model_name} status changed: #{id} - #{status}"
+            self.status = status
+            yield data if block_given?
+            break self
+          else
+            debug "#{model_name} wait for status: #{id} - #{data['status']}"
           end
+          sleep 2
         end
       end
 
@@ -102,6 +98,9 @@ module Larrow
         end
       end
 
+      # destroy method generator
+      #
+      # destroy can be called by end user, so it will return a future
       def self.destroy_action(action)
         define_method :destroy do
           params = self.class.param_by [id]

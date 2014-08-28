@@ -10,12 +10,12 @@ module Larrow::Qingcloud
       eip = Eip.create.first
 
       # bind eip to instance
-      eip.associate instance
-      eip.dissociate instance
+      eip = eip.associate instance.id
+      eip = eip.dissociate instance.id
 
       # destroy instance and eip
       expect(instance.destroy['ret_code']).to be_zero
-      eip.destroy.force
+      expect(eip.destroy['ret_code']).to be_zero
     end
   end
 end

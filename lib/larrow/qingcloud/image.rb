@@ -17,15 +17,8 @@ module Larrow
       def self.create instance_id
         result = conn.get 'CaptureInstance', instance: instance_id
         info "image added: #{result}"
-        new(result['image_id'],nil,nil,nil).tap do |i|
-          i.wait_for :available
-        end
-      end
-
-      def initialize id,status,platform,provider
-        super id,status
-        self.platform = platform
-        self.provider = provider
+        image = new result['image_id']
+        promise{ image.wait_for :available }
       end
 
       def wait_for status

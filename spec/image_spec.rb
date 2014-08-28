@@ -9,12 +9,15 @@ module Larrow::Qingcloud
     it 'capture instance' do
       image = Image.list.select{|i| i.status == :available}.first
 
-      instance = Instance.create(image.id).first
-      instance.stop(true).force
+      instance = Instance.
+        create(image.id).
+        first.
+        stop
       new_image = Image.create instance.id
-      expect(new_image).not_to be_nil
-      instance.destroy
-      new_image.destroy
+      expect(new_image.status).to eq :available
+      
+      expect(instance.destroy['ret_code']).to be_zero
+      expect(new_image.destroy['ret_code']).to be_zero
     end
   end
 end
