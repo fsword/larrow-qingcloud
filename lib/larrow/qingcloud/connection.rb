@@ -12,7 +12,7 @@ module Larrow
       URL_TEMPLATE = 'https://api.qingcloud.com/iaas/?%s&signature=%s'
       attr_accessor :access_key, :secret_key, :zone_id
 
-      def initialize(access_key, secret_key, zone_id:'pek1')
+      def initialize(access_key, secret_key, zone_id)
         self.access_key = access_key
         self.secret_key = secret_key
         self.zone_id    = zone_id
@@ -51,6 +51,10 @@ module Larrow
             fail ServiceError, obj['message']
           end
         end
+      end
+
+      def get action, params = {}
+        service 'get', action, params
       end
     end
   end

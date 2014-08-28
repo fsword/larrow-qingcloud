@@ -4,10 +4,18 @@ module Larrow
     # base class for Qingcloud model
     class Base
       include Logger
-      attr_accessor :id, :status
+      attr_accessor :id, :status, :delegator
 
-      def initialize(id)
+      def initialize(id,options={})
         self.id = id
+        options.each_pair do |k,v|
+          self.send "#{k}=",v
+        end
+      end
+
+      # status always be symbol
+      def status= status
+        @status = status.nil? ? nil : status.to_sym
       end
 
       def conn
@@ -19,30 +27,23 @@ module Larrow
       end
 
       def show(params = {})
-        self.class.describe(
-          [self],
-          params
-        ).first
+        self.class.describe([self],params).first
       end
 
-      def wait_for(status,checknow=nil)
-        sleep 2 unless checknow
-        Timeout.timeout(90) do
-          loop do
-            data = show
-            if data['status'] == status.to_s
-              info "#{model_name} status changed: #{id} - #{status}"
-              self.status = status
-              yield data if block_given?
-              return data
-            else
-              debug "#{model_name} wait for status: #{id} - #{data['status']}"
-            end
-            sleep 2
+      # block method, should be delayed at caller function
+      def wait_for(status)
+        loop do
+          data = show
+          if data['status'].to_sym == status
+            info "#{model_name} status changed: #{id} - #{status}"
+            self.status = status
+            yield data if block_given?
+            break self
+          else
+            debug "#{model_name} wait for status: #{id} - #{data['status']}"
           end
+          sleep 2
         end
-      rescue Timeout::Error
-        fail "#{model_name} wait for #{status} timeout"
       end
 
       def self.conn
@@ -90,28 +91,30 @@ module Larrow
         )["#{singular_name}_set"]
         if block_given?
           datas.map do |data|
-            new.tap { |obj| yield obj, data }
+            yield data
           end
         else
           datas
         end
       end
 
+      # destroy method generator
+      #
+      # destroy can be called by end user, so it will return a future
       def self.destroy_action(action)
         define_method :destroy do
           params = self.class.param_by [id]
-          Timeout.timeout(30) do
+          future(timeout:90) do
             loop do
               begin
-                result = conn.service 'get', action, params
+                result = conn.get action, params
                 info "destroy #{self.class.name}: #{result}"
-                return result
+                break result
               rescue ServiceError => e
                 sleep 2
               end
             end
           end
-          fail "cannot destroy fail #{self.class}: #{id}"
         end
       end
     end

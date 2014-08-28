@@ -1,18 +1,22 @@
 require 'active_support/deprecation'
 require 'active_support/core_ext/string'
+require 'active_support/core_ext/hash'
+require 'larrow/promise/promise'
+require 'larrow/promise/future'
 
 module Larrow
   # Qingcloud ruby sdk
   module Qingcloud
-    def self.establish_connection(access_key, secret_key)
-      @connection ||= Connection.new access_key, secret_key
+    def self.establish_connection(access_key, secret_key, zone_id)
+      @connection ||= Connection.new access_key, secret_key, zone_id
     end
     class << self
       attr_reader :connection
     end
     autoload :Instance, 'larrow/qingcloud/instance'
-    autoload :Image,    'larrow/qingcloud/image'
     autoload :Eip,      'larrow/qingcloud/eip'
+    autoload :Image,    'larrow/qingcloud/image'
+    autoload :Snapshot, 'larrow/qingcloud/snapshot'
   end
 end
 

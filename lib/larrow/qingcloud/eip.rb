@@ -11,13 +11,30 @@ module Larrow
                               count: count
 
         info "EIP added: #{result['eips']}"
-        result['eips'].map { |id| new id }
+        result['eips'].map do |id| 
+          promise(timeout:60){ new(id).wait_for :available }
+        end
       end
 
       def wait_for(status)
         super do |data|
           self.address = data['eip_addr']
         end
+      end
+
+      def associate(instance_id)
+        conn.service 'get', 'AssociateEip',
+                     instance: instance_id,
+                     eip: id
+        promise(timeout:60){ wait_for :associated }
+      end
+
+      # cannot support batch dissociating
+      def dissociate(instance_id)
+        conn.service 'get', 'DissociateEips',
+                     :instance => instance_id,
+                     :'eips.1'  => id
+        promise(timeout:60){ wait_for :available }
       end
     end
   end
