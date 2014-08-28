@@ -1,4 +1,4 @@
-require 'larrow/promise/promise'
+require_relative 'promise'
 
 ##
 # A delayed-execution result, optimistically evaluated in a new thread.
