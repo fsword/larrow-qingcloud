@@ -91,7 +91,7 @@ module Larrow
         )["#{singular_name}_set"]
         if block_given?
           datas.map do |data|
-            new.tap { |obj| yield obj, data }
+            yield data
           end
         else
           datas
