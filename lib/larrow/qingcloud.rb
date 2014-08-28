@@ -16,6 +16,7 @@ module Larrow
     autoload :Instance, 'larrow/qingcloud/instance'
     autoload :Eip,      'larrow/qingcloud/eip'
     autoload :Image,    'larrow/qingcloud/image'
+    autoload :Snapshot, 'larrow/qingcloud/snapshot'
   end
 end
 
