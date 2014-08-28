@@ -12,7 +12,7 @@ module Larrow
 
         info "EIP added: #{result['eips']}"
         result['eips'].map do |id| 
-          promise{ new(id).wait_for :available }
+          promise(timeout:60){ new(id).wait_for :available }
         end
       end
 
@@ -26,7 +26,7 @@ module Larrow
         conn.service 'get', 'AssociateEip',
                      instance: instance_id,
                      eip: id
-        promise{ wait_for :associated }
+        promise(timeout:60){ wait_for :associated }
       end
 
       # cannot support batch dissociating
@@ -34,7 +34,7 @@ module Larrow
         conn.service 'get', 'DissociateEips',
                      :instance => instance_id,
                      :'eips.1'  => id
-        promise{ wait_for :available }
+        promise(timeout:60){ wait_for :available }
       end
     end
   end

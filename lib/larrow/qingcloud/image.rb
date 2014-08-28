@@ -18,7 +18,7 @@ module Larrow
         result = conn.get 'CaptureInstance', instance: instance_id
         info "image added: #{result}"
         image = new result['image_id']
-        promise{ image.wait_for :available }
+        promise(timeout:90){ image.wait_for :available }
       end
 
       def wait_for status

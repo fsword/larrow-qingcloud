@@ -27,7 +27,7 @@ module Larrow
 
         info "instance added: #{result['instances']}"
         result['instances'].map do |id|
-          promise do 
+          promise(timeout:90) do 
             new(
               id,keypair_id: keypair_id,vxnet_id:   vxnet_id
             ).wait_for :running
