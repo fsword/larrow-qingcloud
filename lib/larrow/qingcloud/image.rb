@@ -4,8 +4,8 @@ module Larrow
       attr_accessor :platform, :provider
       destroy_action 'DeleteImages'
 
-      def self.list(provider=:system)
-        describe([],{:provider => provider}) do |hash|
+      def self.list(provider=:system,ids:[])
+        describe(ids,{:provider => provider,:'status.1' => :available}) do |hash|
           new hash['image_id'],
             hash.slice('status','platform','provider')
         end
