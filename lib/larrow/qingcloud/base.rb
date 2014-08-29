@@ -27,7 +27,7 @@ module Larrow
       end
 
       def show(params = {})
-        self.class.describe([self],params).first
+        self.class.describe([self.id],params).first
       end
 
       # block method, should be delayed at caller function
@@ -84,8 +84,8 @@ module Larrow
       end
 
       # convert hash data to object when block given
-      def self.describe(objs, params)
-        params = param_by(objs.map(&:id), params)
+      def self.describe(ids, params)
+        params = param_by(ids, params)
         datas = conn.service(
           'get', "Describe#{model_name}s", params
         )["#{singular_name}_set"]
