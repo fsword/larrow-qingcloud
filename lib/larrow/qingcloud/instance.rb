@@ -6,7 +6,7 @@ module Larrow
       destroy_action 'TerminateInstances'
 
       # return an array(running instance)
-      def self.create(image_id,
+      def self.create(image_id:nil,
                       cpu:1,
                       memory:1024,
                       count:1, 
@@ -15,6 +15,9 @@ module Larrow
                       keypair_id:nil, 
                       vxnet_id:'vxnet-0')
         err 'The default password is weak, you should change it'
+
+        image_id ||= 'trustysrvx64b'
+        
         result = conn.service 'get', 'RunInstances',
                               :image_id         => image_id,
                               :cpu              => cpu,
