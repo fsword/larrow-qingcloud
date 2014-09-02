@@ -62,8 +62,12 @@ module Larrow
       end
 
       # return a delayed instance object
-      def stop
-        conn.get 'StopInstances', :'instances.1' => id
+      def stop force=nil
+        if force
+          conn.get 'StopInstances', :'instances.1' => id, :force => 1
+        else
+          conn.get 'StopInstances', :'instances.1' => id
+        end
         promise(timeout:60){ wait_for :stopped }
       end
     end
