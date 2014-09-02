@@ -2,17 +2,22 @@ require_relative 'spec_helper'
 
 module Larrow::Qingcloud
   describe Image do
+
+    let(:base_image) do
+      Image.list.select do |i| 
+        i.status == :available and i.platform == 'linux'
+      end.first
+    end
+
     it 'list not empty' do
       expect(Image.list).not_to be_empty
     end
 
     it 'capture instance' do
-      image = Image.list.select{|i| i.status == :available}.first
-
       instance = Instance.
-        create(image.id).
+        create(image_id: base_image.id).
         first.
-        stop
+        stop(true)
       new_image = Image.create instance.id
       expect(new_image.status).to eq :available
       
@@ -21,10 +26,8 @@ module Larrow::Qingcloud
     end
 
     it 'create from snapshot' do
-      image = Image.list.select{|i| i.status == :available}.first
-
       instance = Instance.
-        create(image.id).
+        create(image_id: base_image.id).
         first
       snapshot = Snapshot.create(instance.id).first
       new_image = Image.create_from_snapshot snapshot.id
