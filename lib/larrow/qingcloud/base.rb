@@ -109,9 +109,13 @@ module Larrow
               begin
                 result = conn.get action, params
                 info "destroy #{self.class.name}: #{result}"
-                break result
+                break result['ret_code'] == 0
               rescue ServiceError => e
-                sleep 2
+                if e.message =~ /has already been deleted/
+                  break :already_deleted
+                else
+                  sleep 2
+                end
               end
             end
           end

@@ -19,8 +19,8 @@ module Larrow::Qingcloud
       snapshot = Snapshot.create(instance.id).first
       expect(snapshot.status).to eq :available
       
-      expect(instance.destroy['ret_code']).to be_zero
-      expect(snapshot.destroy['ret_code']).to be_zero
+      expect(instance.destroy).to be true
+      expect(snapshot.destroy).to be true
     end
   end
 end
