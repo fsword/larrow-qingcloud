@@ -6,6 +6,8 @@ module Larrow
       include Logger
       attr_accessor :id, :status, :delegator
 
+      DESTROY_STATUSES = [:deleted, :ceased,:released]
+
       def initialize(id,options={})
         self.id = id
         options.each_pair do |k,v|
@@ -117,6 +119,17 @@ module Larrow
                   sleep 2
                 end
               end
+            end
+          end
+        end
+        define_method :ensure_destroy do
+          params = self.class.param_by [id]
+          future(timeout:90) do
+            loop do
+              break true if DESTROY_STATUSES.include?(@status) 
+              conn.get action, params rescue nil
+              sleep 2
+              @status = show['status'].to_sym
             end
           end
         end
