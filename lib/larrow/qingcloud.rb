@@ -9,6 +9,11 @@ module Larrow
     def self.establish_connection(access_key, secret_key, zone_id)
       @connection ||= Connection.new access_key, secret_key, zone_id
     end
+
+    def self.remove_connection
+      @connection = nil
+    end
+
     class << self
       attr_reader :connection
     end
