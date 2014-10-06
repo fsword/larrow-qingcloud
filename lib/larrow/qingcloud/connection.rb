@@ -38,7 +38,7 @@ module Larrow
         signed_text = format "%s\n/iaas/\n%s", method.upcase, request_str
 
         signature = Base64.encode64(OpenSSL::HMAC.digest(
-          OpenSSL::Digest.new('sha256'), secret_key, signed_text
+          OpenSSL::Digest.new('sha256'), secret_key||'', signed_text
         )).strip
 
         url = format URL_TEMPLATE, request_str, CGI.escape(signature)
