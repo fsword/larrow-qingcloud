@@ -49,7 +49,7 @@ module Larrow
       end
 
       def self.conn
-        @conn ||= Qingcloud.connection
+        Qingcloud.connection
       end
 
       # just for state access, such as:
