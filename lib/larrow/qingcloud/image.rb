@@ -6,8 +6,11 @@ module Larrow
 
       def self.list(provider=:system,ids:[])
         describe(ids,{:provider => provider,:'status.1' => :available}) do |hash|
-          new hash['image_id'],
-            hash.slice('status','platform','provider')
+          new(hash['image_id'],
+              {'status' => hash['status'],
+               'platform' => hash['platform'],
+               'provider' => hash['provider']}
+             )
         end
       end
 

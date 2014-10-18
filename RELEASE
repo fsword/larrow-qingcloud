@@ -1,0 +1,5 @@
+2014.10.9. version 0.0.2
+========================
+
+* remove activesupport dependency
+* change default image id

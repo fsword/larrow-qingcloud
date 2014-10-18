@@ -12,9 +12,9 @@ module Helpers
 
   def load_by_default
     args = read_content_as_hash
-    [args['qy_access_key_id'],
-     args['qy_secret_access_key'], 
-     args['zone_id']]
+    [args[:qy_access_key_id],
+     args[:qy_secret_access_key], 
+     args[:zone_id]]
   end
 
   def read_content_as_hash

@@ -72,7 +72,7 @@ module Larrow
         name.split(/::/).last.downcase
       end
       def self.plural_name
-        name.split(/::/).last.downcase.pluralize
+        "#{singular_name}s"
       end
 
       def param_by(*args)

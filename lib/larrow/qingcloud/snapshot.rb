@@ -7,7 +7,10 @@ module Larrow
 
       def self.list()
         describe([],{:'status.1' => :available}) do |hash|
-          new hash['snapshot_id'], hash.slice('status','resource')
+          new(hash['snapshot_id'],
+              {'status' => hash['status'],
+               'resource' => hash['resource']}
+             )
         end
       end
 
