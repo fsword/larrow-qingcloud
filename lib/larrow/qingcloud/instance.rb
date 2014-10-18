@@ -16,7 +16,7 @@ module Larrow
                       vxnet_id:'vxnet-0')
         err 'The default password is weak, you should change it'
 
-        image_id ||= 'trustysrvx64b'
+        image_id ||= 'trustysrvx64c'
         
         result = conn.service 'get', 'RunInstances',
                               :image_id         => image_id,
