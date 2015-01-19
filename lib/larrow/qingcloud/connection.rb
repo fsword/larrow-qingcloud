@@ -3,6 +3,7 @@ require 'cgi'
 require 'openssl'
 require 'base64'
 require 'json'
+require 'time'
 
 module Larrow
   module Qingcloud
