@@ -3,6 +3,7 @@ require 'cgi'
 require 'openssl'
 require 'base64'
 require 'json'
+require 'time'
 
 module Larrow
   module Qingcloud
@@ -20,7 +21,7 @@ module Larrow
 
       def service(method, action, params = {})
         # Time.new.iso8601 cannot be recognized
-        time_stamp = Time.new.utc.strftime '%Y-%m-%dT%TZ'
+        time_stamp = Time.now.utc.iso8601
         params.update(
           zone: zone_id,
           action: action,
